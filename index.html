@@ -48,6 +48,33 @@
                 <button id="manualModeBtn" class="mode-btn">手動モード: OFF</button>
                 <span class="mode-hint">波形上の縦線をドラッグして時間軸を調整</span>
             </div>
+            
+            <div class="phase-control">
+                <h4>相の有効・無効設定</h4>
+                <div class="phase-switches">
+                    <div class="phase-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="rPhaseEnabled" checked>
+                            <span class="slider r-phase"></span>
+                        </label>
+                        <span class="phase-label">R相</span>
+                    </div>
+                    <div class="phase-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="sPhaseEnabled" checked>
+                            <span class="slider s-phase"></span>
+                        </label>
+                        <span class="phase-label">S相</span>
+                    </div>
+                    <div class="phase-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="tPhaseEnabled" checked>
+                            <span class="slider t-phase"></span>
+                        </label>
+                        <span class="phase-label">T相</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="simulation-area">

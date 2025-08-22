@@ -140,6 +140,112 @@ header p {
     min-width: auto !important;
 }
 
+.phase-control {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+}
+
+.phase-control h4 {
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.phase-switches {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.phase-switch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.phase-label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* スイッチのスタイル */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #667eea;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* 各相の色分け */
+.slider.r-phase {
+    background-color: #ff6b6b;
+}
+
+.slider.s-phase {
+    background-color: #4ecdc4;
+}
+
+.slider.t-phase {
+    background-color: #45b7d1;
+}
+
+input:checked + .slider.r-phase {
+    background-color: #ff6b6b;
+}
+
+input:checked + .slider.s-phase {
+    background-color: #4ecdc4;
+}
+
+input:checked + .slider.t-phase {
+    background-color: #45b7d1;
+}
+
 .simulation-area {
     display: grid;
     grid-template-columns: 1fr 300px;

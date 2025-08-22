@@ -10,6 +10,11 @@ class ThreePhaseSimulator {
         this.isManualMode = false; // 手動モードフラグ
         this.isDragging = false; // ドラッグ中フラグ
         
+        // 相の有効・無効フラグ
+        this.rPhaseEnabled = true;
+        this.sPhaseEnabled = true;
+        this.tPhaseEnabled = true;
+        
         this.waveformCanvas = document.getElementById('waveformCanvas');
         this.lineVoltageCanvas = document.getElementById('lineVoltageCanvas');
         this.phasorCanvas = document.getElementById('phasorCanvas');
@@ -47,6 +52,19 @@ class ThreePhaseSimulator {
             document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(1)}x`;
         });
 
+        // 相の有効・無効イベントリスナー
+        document.getElementById('rPhaseEnabled').addEventListener('change', (e) => {
+            this.rPhaseEnabled = e.target.checked;
+        });
+        
+        document.getElementById('sPhaseEnabled').addEventListener('change', (e) => {
+            this.sPhaseEnabled = e.target.checked;
+        });
+        
+        document.getElementById('tPhaseEnabled').addEventListener('change', (e) => {
+            this.tPhaseEnabled = e.target.checked;
+        });
+
         // マウスイベントの設定
         this.setupMouseEvents();
         
@@ -69,14 +87,14 @@ class ThreePhaseSimulator {
         const omega = 2 * Math.PI * this.frequency;
         const phaseShift = 2 * Math.PI / 3; // 120度
         
-        const rPhase = this.amplitude * Math.sin(omega * time);
-        const sPhase = this.amplitude * Math.sin(omega * time - phaseShift);
-        const tPhase = this.amplitude * Math.sin(omega * time - 2 * phaseShift);
+        const rPhase = this.rPhaseEnabled ? this.amplitude * Math.sin(omega * time) : 0;
+        const sPhase = this.sPhaseEnabled ? this.amplitude * Math.sin(omega * time - phaseShift) : 0;
+        const tPhase = this.tPhaseEnabled ? this.amplitude * Math.sin(omega * time - 2 * phaseShift) : 0;
         
         // 線間電圧の計算
-        const rsVoltage = rPhase - sPhase;
-        const stVoltage = sPhase - tPhase;
-        const trVoltage = tPhase - rPhase;
+        const rsVoltage = this.rPhaseEnabled && this.sPhaseEnabled ? rPhase - sPhase : 0;
+        const stVoltage = this.sPhaseEnabled && this.tPhaseEnabled ? sPhase - tPhase : 0;
+        const trVoltage = this.tPhaseEnabled && this.rPhaseEnabled ? tPhase - rPhase : 0;
         
         return {
             rPhase, sPhase, tPhase,
@@ -110,49 +128,55 @@ class ThreePhaseSimulator {
         ctx.lineWidth = 2;
         
         // R相
-        ctx.strokeStyle = colors.r;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
-            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.rPhaseEnabled) {
+            ctx.strokeStyle = colors.r;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
+                const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // S相
-        ctx.strokeStyle = colors.s;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
-            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.sPhaseEnabled) {
+            ctx.strokeStyle = colors.s;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
+                const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // T相
-        ctx.strokeStyle = colors.t;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
-            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.tPhaseEnabled) {
+            ctx.strokeStyle = colors.t;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
+                const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // 現在時刻のマーカー
         const currentX = (this.time % timeRange) / timeRange * width;
@@ -212,54 +236,75 @@ class ThreePhaseSimulator {
         const phaseShift = 2 * Math.PI / 3;
         
         // R相ベクトル
-        const rAngle = omega * this.time;
-        const rX = centerX + radius * Math.cos(rAngle);
-        const rY = centerY - radius * Math.sin(rAngle);
-        
-        ctx.strokeStyle = colors.r;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(rX, rY);
-        ctx.stroke();
+        if (this.rPhaseEnabled) {
+            const rAngle = omega * this.time;
+            const rX = centerX + radius * Math.cos(rAngle);
+            const rY = centerY - radius * Math.sin(rAngle);
+            
+            ctx.strokeStyle = colors.r;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(rX, rY);
+            ctx.stroke();
+        }
         
         // S相ベクトル
-        const sAngle = omega * this.time - phaseShift;
-        const sX = centerX + radius * Math.cos(sAngle);
-        const sY = centerY - radius * Math.sin(sAngle);
-        
-        ctx.strokeStyle = colors.s;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(sX, sY);
-        ctx.stroke();
+        if (this.sPhaseEnabled) {
+            const sAngle = omega * this.time - phaseShift;
+            const sX = centerX + radius * Math.cos(sAngle);
+            const sY = centerY - radius * Math.sin(sAngle);
+            
+            ctx.strokeStyle = colors.s;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(sX, sY);
+            ctx.stroke();
+        }
         
         // T相ベクトル
-        const tAngle = omega * this.time - 2 * phaseShift;
-        const tX = centerX + radius * Math.cos(tAngle);
-        const tY = centerY - radius * Math.sin(tAngle);
-        
-        ctx.strokeStyle = colors.t;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(tX, tY);
-        ctx.stroke();
+        if (this.tPhaseEnabled) {
+            const tAngle = omega * this.time - 2 * phaseShift;
+            const tX = centerX + radius * Math.cos(tAngle);
+            const tY = centerY - radius * Math.sin(tAngle);
+            
+            ctx.strokeStyle = colors.t;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(tX, tY);
+            ctx.stroke();
+        }
         
         // ベクトルの先端に円を描画
-        ctx.fillStyle = colors.r;
-        ctx.beginPath();
-        ctx.arc(rX, rY, 5, 0, 2 * Math.PI);
-        ctx.fill();
+        if (this.rPhaseEnabled) {
+            const rAngle = omega * this.time;
+            const rX = centerX + radius * Math.cos(rAngle);
+            const rY = centerY - radius * Math.sin(rAngle);
+            ctx.fillStyle = colors.r;
+            ctx.beginPath();
+            ctx.arc(rX, rY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
         
-        ctx.fillStyle = colors.s;
-        ctx.beginPath();
-        ctx.arc(sX, sY, 5, 0, 2 * Math.PI);
-        ctx.fill();
+        if (this.sPhaseEnabled) {
+            const sAngle = omega * this.time - phaseShift;
+            const sX = centerX + radius * Math.cos(sAngle);
+            const sY = centerY - radius * Math.sin(sAngle);
+            ctx.fillStyle = colors.s;
+            ctx.beginPath();
+            ctx.arc(sX, sY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
         
-        ctx.fillStyle = colors.t;
-        ctx.beginPath();
-        ctx.arc(tX, tY, 5, 0, 2 * Math.PI);
-        ctx.fill();
+        if (this.tPhaseEnabled) {
+            const tAngle = omega * this.time - 2 * phaseShift;
+            const tX = centerX + radius * Math.cos(tAngle);
+            const tY = centerY - radius * Math.sin(tAngle);
+            ctx.fillStyle = colors.t;
+            ctx.beginPath();
+            ctx.arc(tX, tY, 5, 0, 2 * Math.PI);
+            ctx.fill();
+        }
         
         // 線間電圧ベクトルの描画（破線）
         ctx.strokeStyle = '#666';
@@ -267,22 +312,49 @@ class ThreePhaseSimulator {
         ctx.setLineDash([8, 4]);
         
         // R-S間
-        ctx.beginPath();
-        ctx.moveTo(rX, rY);
-        ctx.lineTo(sX, sY);
-        ctx.stroke();
+        if (this.rPhaseEnabled && this.sPhaseEnabled) {
+            const rAngle = omega * this.time;
+            const rX = centerX + radius * Math.cos(rAngle);
+            const rY = centerY - radius * Math.sin(rAngle);
+            const sAngle = omega * this.time - phaseShift;
+            const sX = centerX + radius * Math.cos(sAngle);
+            const sY = centerY - radius * Math.sin(sAngle);
+            
+            ctx.beginPath();
+            ctx.moveTo(rX, rY);
+            ctx.lineTo(sX, sY);
+            ctx.stroke();
+        }
         
         // S-T間
-        ctx.beginPath();
-        ctx.moveTo(sX, sY);
-        ctx.lineTo(tX, tY);
-        ctx.stroke();
+        if (this.sPhaseEnabled && this.tPhaseEnabled) {
+            const sAngle = omega * this.time - phaseShift;
+            const sX = centerX + radius * Math.cos(sAngle);
+            const sY = centerY - radius * Math.sin(sAngle);
+            const tAngle = omega * this.time - 2 * phaseShift;
+            const tX = centerX + radius * Math.cos(tAngle);
+            const tY = centerY - radius * Math.sin(tAngle);
+            
+            ctx.beginPath();
+            ctx.moveTo(sX, sY);
+            ctx.lineTo(tX, tY);
+            ctx.stroke();
+        }
         
         // T-R間
-        ctx.beginPath();
-        ctx.moveTo(tX, tY);
-        ctx.lineTo(rX, rY);
-        ctx.stroke();
+        if (this.tPhaseEnabled && this.rPhaseEnabled) {
+            const tAngle = omega * this.time - 2 * phaseShift;
+            const tX = centerX + radius * Math.cos(tAngle);
+            const tY = centerY - radius * Math.sin(tAngle);
+            const rAngle = omega * this.time;
+            const rX = centerX + radius * Math.cos(rAngle);
+            const rY = centerY - radius * Math.sin(rAngle);
+            
+            ctx.beginPath();
+            ctx.moveTo(tX, tY);
+            ctx.lineTo(rX, rY);
+            ctx.stroke();
+        }
         
         ctx.setLineDash([]);
     }
@@ -507,55 +579,61 @@ class ThreePhaseSimulator {
         ctx.lineWidth = 2;
         
         // R-S間電圧
-        ctx.strokeStyle = colors.rs;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
-            const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
-            const rsVoltage = rPhase - sPhase;
-            const y = height / 2 - (rsVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.rPhaseEnabled && this.sPhaseEnabled) {
+            ctx.strokeStyle = colors.rs;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const rPhase = this.rPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t) : 0;
+                const sPhase = this.sPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3) : 0;
+                const rsVoltage = rPhase - sPhase;
+                const y = height / 2 - (rsVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // S-T間電圧
-        ctx.strokeStyle = colors.st;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
-            const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
-            const stVoltage = sPhase - tPhase;
-            const y = height / 2 - (stVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.sPhaseEnabled && this.tPhaseEnabled) {
+            ctx.strokeStyle = colors.st;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const sPhase = this.sPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3) : 0;
+                const tPhase = this.tPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3) : 0;
+                const stVoltage = sPhase - tPhase;
+                const y = height / 2 - (stVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // T-R間電圧
-        ctx.strokeStyle = colors.tr;
-        ctx.beginPath();
-        for (let x = 0; x < width; x++) {
-            const t = x * timeStep * this.timeScale;
-            const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
-            const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
-            const trVoltage = tPhase - rPhase;
-            const y = height / 2 - (trVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
-            if (x === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
+        if (this.tPhaseEnabled && this.rPhaseEnabled) {
+            ctx.strokeStyle = colors.tr;
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = x * timeStep * this.timeScale;
+                const tPhase = this.tPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3) : 0;
+                const rPhase = this.rPhaseEnabled ? this.amplitude * Math.sin(2 * Math.PI * this.frequency * t) : 0;
+                const trVoltage = tPhase - rPhase;
+                const y = height / 2 - (trVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
+                if (x === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
             }
+            ctx.stroke();
         }
-        ctx.stroke();
         
         // 現在時刻のマーカー
         const currentX = (this.time % timeRange) / timeRange * width;
