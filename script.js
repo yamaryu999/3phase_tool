@@ -711,7 +711,13 @@ function initAdPopup() {
 
 function showAdPopup() {
     const popup = document.getElementById('adPopup');
-    if (popup) {
+    const adContent = document.getElementById('adContent');
+    
+    if (popup && adContent) {
+        // ランダムに広告を選択
+        const randomAd = getRandomAd();
+        adContent.innerHTML = randomAd;
+        
         popup.style.display = 'block';
         
         // ポップアップ外をクリックしても閉じないようにする
@@ -722,6 +728,26 @@ function showAdPopup() {
             }
         });
     }
+}
+
+function getRandomAd() {
+    // 利用可能な広告のリスト
+    const ads = [
+        'ad1', // 文系のためのインバータ入門
+        'ad2'  // 入門インバータ工学
+    ];
+    
+    // ランダムに広告を選択
+    const randomAdId = ads[Math.floor(Math.random() * ads.length)];
+    const adTemplate = document.getElementById(randomAdId);
+    
+    if (adTemplate) {
+        return adTemplate.innerHTML;
+    }
+    
+    // フォールバック: デフォルトの広告1を表示
+    const defaultAd = document.getElementById('ad1');
+    return defaultAd ? defaultAd.innerHTML : '';
 }
 
 function closeAdPopup() {
