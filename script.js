@@ -53,7 +53,7 @@ class ThreePhaseSimulator {
         
         document.getElementById('animationSpeed').addEventListener('input', (e) => {
             this.animationSpeed = parseFloat(e.target.value);
-            document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(2)}x`;
+            document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(3)}x`;
         });
 
         // 相の有効・無効イベントリスナー
