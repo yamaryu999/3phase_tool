@@ -685,6 +685,24 @@ class ThreePhaseSimulator {
 
 // シミュレーターの初期化
 document.addEventListener('DOMContentLoaded', () => {
+    // MetaMaskエラーを防ぐためのエラーハンドリング
+    window.addEventListener('error', (e) => {
+        if (e.message && e.message.includes('MetaMask')) {
+            // MetaMaskエラーは無視
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Promise rejectionのエラーハンドリング
+    window.addEventListener('unhandledrejection', (e) => {
+        if (e.reason && e.reason.message && e.reason.message.includes('MetaMask')) {
+            // MetaMaskエラーは無視
+            e.preventDefault();
+            return false;
+        }
+    });
+    
     const simulator = new ThreePhaseSimulator();
     
     // ページを離れる際にアニメーションを停止
