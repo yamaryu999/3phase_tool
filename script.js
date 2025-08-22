@@ -720,43 +720,39 @@ function showAdPopup() {
     const adContent = document.getElementById('adContent');
     
     if (popup && adContent) {
-        // ランダムに広告を選択
-        const randomAd = getRandomAd();
-        adContent.innerHTML = randomAd;
+        // ランダムに広告を選択（DOMをクローンして挿入）
+        const adElement = getRandomAd();
+        adContent.innerHTML = '';
+        if (adElement) {
+            adContent.appendChild(adElement);
+        }
         
         popup.style.display = 'block';
         
         // ポップアップ外をクリックしても閉じないようにする
-        popup.addEventListener('click', (e) => {
-            if (e.target === popup) {
-                // ポップアップ外クリックは無視
-                e.stopPropagation();
-            }
-        });
-        
-        // 一度だけイベントリスナーを追加するためのフラグ
-        popup.dataset.listenerAdded = 'true';
+        if (!popup.dataset.listenerAdded) {
+            popup.addEventListener('click', (e) => {
+                if (e.target === popup) {
+                    // ポップアップ外クリックは無視
+                    e.stopPropagation();
+                }
+            });
+            popup.dataset.listenerAdded = 'true';
+        }
     }
 }
 
 function getRandomAd() {
-    // 利用可能な広告のリスト
-    const ads = [
-        'ad1', // 文系のためのインバータ入門
-        'ad2'  // 入門インバータ工学
-    ];
-    
+    // 利用可能な広告のリスト（テンプレートID）
+    const ads = ['ad1', 'ad2'];
     // ランダムに広告を選択
     const randomAdId = ads[Math.floor(Math.random() * ads.length)];
     const adTemplate = document.getElementById(randomAdId);
-    
-    if (adTemplate) {
-        return adTemplate.innerHTML;
-    }
-    
-    // フォールバック: デフォルトの広告1を表示
-    const defaultAd = document.getElementById('ad1');
-    return defaultAd ? defaultAd.innerHTML : '';
+    if (!adTemplate) return null;
+    // テンプレートDOMをクローンして返す（IDは重複を避けるため削除）
+    const clone = adTemplate.cloneNode(true);
+    clone.removeAttribute('id');
+    return clone;
 }
 
 function closeAdPopup() {
