@@ -413,40 +413,50 @@ class ThreePhaseSimulator {
         
         // マウスダウン（三相電圧波形）
         canvas.addEventListener('mousedown', (e) => {
+            console.log('マウスダウン - 手動モード:', this.isManualMode);
             if (!this.isManualMode) return;
             
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const width = canvas.width;
             
-            // 時間軸マーカー付近をクリックしたかチェック
-            const timeRange = 2 / this.frequency;
-            const currentX = (this.time % timeRange) / timeRange * width;
+            console.log('クリック位置:', x, 'キャンバス幅:', width);
             
-            if (Math.abs(x - currentX) < 20) { // マーカー付近20px以内
-                this.isDragging = true;
-                canvas.style.cursor = 'grabbing';
-                lineVoltageCanvas.style.cursor = 'grabbing';
-            }
+            // キャンバス全体でクリック可能にする
+            this.isDragging = true;
+            canvas.style.cursor = 'grabbing';
+            lineVoltageCanvas.style.cursor = 'grabbing';
+            
+            // 時間を直接設定
+            const timeRange = 2 / this.frequency;
+            const normalizedX = Math.max(0, Math.min(1, x / width));
+            this.time = normalizedX * timeRange;
+            
+            console.log('ドラッグ開始 - 新しい時間:', this.time);
         });
 
         // マウスダウン（線間電圧波形）
         lineVoltageCanvas.addEventListener('mousedown', (e) => {
+            console.log('線間電圧マウスダウン - 手動モード:', this.isManualMode);
             if (!this.isManualMode) return;
             
             const rect = lineVoltageCanvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const width = lineVoltageCanvas.width;
             
-            // 時間軸マーカー付近をクリックしたかチェック
-            const timeRange = 2 / this.frequency;
-            const currentX = (this.time % timeRange) / timeRange * width;
+            console.log('線間電圧クリック位置:', x, 'キャンバス幅:', width);
             
-            if (Math.abs(x - currentX) < 20) { // マーカー付近20px以内
-                this.isDragging = true;
-                canvas.style.cursor = 'grabbing';
-                lineVoltageCanvas.style.cursor = 'grabbing';
-            }
+            // キャンバス全体でクリック可能にする
+            this.isDragging = true;
+            canvas.style.cursor = 'grabbing';
+            lineVoltageCanvas.style.cursor = 'grabbing';
+            
+            // 時間を直接設定
+            const timeRange = 2 / this.frequency;
+            const normalizedX = Math.max(0, Math.min(1, x / width));
+            this.time = normalizedX * timeRange;
+            
+            console.log('線間電圧ドラッグ開始 - 新しい時間:', this.time);
         });
         
         // マウス移動（三相電圧波形）
@@ -463,19 +473,10 @@ class ThreePhaseSimulator {
                 
                 canvas.style.cursor = 'grabbing';
                 lineVoltageCanvas.style.cursor = 'grabbing';
-            } else if (this.isManualMode) {
-                // マーカー付近にマウスがあるかチェック
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const width = canvas.width;
-                const timeRange = 2 / this.frequency;
-                const currentX = (this.time % timeRange) / timeRange * width;
                 
-                if (Math.abs(x - currentX) < 20) {
-                    canvas.style.cursor = 'grab';
-                } else {
-                    canvas.style.cursor = 'default';
-                }
+                console.log('ドラッグ中 - 新しい時間:', this.time);
+            } else if (this.isManualMode) {
+                canvas.style.cursor = 'grab';
             }
         });
 
@@ -493,19 +494,10 @@ class ThreePhaseSimulator {
                 
                 canvas.style.cursor = 'grabbing';
                 lineVoltageCanvas.style.cursor = 'grabbing';
-            } else if (this.isManualMode) {
-                // マーカー付近にマウスがあるかチェック
-                const rect = lineVoltageCanvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const width = lineVoltageCanvas.width;
-                const timeRange = 2 / this.frequency;
-                const currentX = (this.time % timeRange) / timeRange * width;
                 
-                if (Math.abs(x - currentX) < 20) {
-                    lineVoltageCanvas.style.cursor = 'grab';
-                } else {
-                    lineVoltageCanvas.style.cursor = 'default';
-                }
+                console.log('線間電圧ドラッグ中 - 新しい時間:', this.time);
+            } else if (this.isManualMode) {
+                lineVoltageCanvas.style.cursor = 'grab';
             }
         });
         
@@ -541,6 +533,8 @@ class ThreePhaseSimulator {
     // 手動モードの切り替え
     toggleManualMode() {
         this.isManualMode = !this.isManualMode;
+        console.log('手動モード切り替え:', this.isManualMode);
+        
         if (this.isManualMode) {
             console.log('手動モード: マウスで時間軸をドラッグできます');
             this.waveformCanvas.style.cursor = 'grab';
@@ -551,6 +545,7 @@ class ThreePhaseSimulator {
             // 手動モード時はオーバーレイのpointer-eventsを無効化
             document.getElementById('waveformVoltageOverlay').style.pointerEvents = 'none';
             document.getElementById('lineVoltageOverlay').style.pointerEvents = 'none';
+            console.log('オーバーレイのpointer-eventsを無効化しました');
         } else {
             console.log('自動モード: 時間軸が自動で動きます');
             this.waveformCanvas.style.cursor = 'default';
@@ -561,6 +556,7 @@ class ThreePhaseSimulator {
             // 自動モード時はオーバーレイのpointer-eventsを有効化
             document.getElementById('waveformVoltageOverlay').style.pointerEvents = 'auto';
             document.getElementById('lineVoltageOverlay').style.pointerEvents = 'auto';
+            console.log('オーバーレイのpointer-eventsを有効化しました');
         }
     }
     
