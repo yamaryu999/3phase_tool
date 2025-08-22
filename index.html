@@ -164,6 +164,20 @@
                 </div>
                 <div class="canvas-container">
                     <canvas id="waveformCanvas" width="800" height="300"></canvas>
+                    <div class="voltage-overlay" id="waveformVoltageOverlay">
+                        <div class="voltage-display-item r-phase">
+                            <span class="voltage-label">R相</span>
+                            <span id="rVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                        <div class="voltage-display-item s-phase">
+                            <span class="voltage-label">S相</span>
+                            <span id="sVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                        <div class="voltage-display-item t-phase">
+                            <span class="voltage-label">T相</span>
+                            <span id="tVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="legend">
                     <div class="legend-item">
@@ -193,6 +207,20 @@
                 </div>
                 <div class="canvas-container">
                     <canvas id="lineVoltageCanvas" width="800" height="300"></canvas>
+                    <div class="voltage-overlay" id="lineVoltageOverlay">
+                        <div class="voltage-display-item rs-voltage">
+                            <span class="voltage-label">R-S間</span>
+                            <span id="rsVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                        <div class="voltage-display-item st-voltage">
+                            <span class="voltage-label">S-T間</span>
+                            <span id="stVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                        <div class="voltage-display-item tr-voltage">
+                            <span class="voltage-label">T-R間</span>
+                            <span id="trVoltage" class="voltage-value">0.00 V</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="legend">
                     <div class="legend-item">
@@ -210,56 +238,7 @@
                 </div>
             </div>
 
-            <div class="voltage-display">
-                <div class="container-header">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <h3>瞬時電圧値</h3>
-                </div>
-                <div class="voltage-grid">
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #ff6b6b;"></i>
-                            R相
-                        </span>
-                        <span id="rVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #4ecdc4;"></i>
-                            S相
-                        </span>
-                        <span id="sVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #45b7d1;"></i>
-                            T相
-                        </span>
-                        <span id="tVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #ff9ff3;"></i>
-                            R-S間
-                        </span>
-                        <span id="rsVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #54a0ff;"></i>
-                            S-T間
-                        </span>
-                        <span id="stVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                    <div class="voltage-item">
-                        <span class="voltage-label">
-                            <i class="fas fa-circle" style="color: #5f27cd;"></i>
-                            T-R間
-                        </span>
-                        <span id="trVoltage" class="voltage-value">0.00 V</span>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="phasor-diagram">
                 <div class="container-header">

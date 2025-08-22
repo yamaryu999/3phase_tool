@@ -465,7 +465,7 @@ input:checked + .slider.t-phase {
 /* シミュレーションエリア */
 .simulation-area {
     display: grid;
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr;
     gap: 2rem;
     margin-bottom: 2rem;
 }
@@ -540,6 +540,78 @@ input:checked + .slider.t-phase {
     width: 100%;
     height: auto;
     display: block;
+}
+
+/* 電圧値オーバーレイ */
+.voltage-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+.voltage-display-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-md);
+    max-width: 150px;
+    transition: var(--transition-fast);
+}
+
+.voltage-display-item:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+.voltage-display-item.r-phase {
+    border-left: 4px solid var(--warning-color);
+}
+
+.voltage-display-item.s-phase {
+    border-left: 4px solid var(--success-color);
+}
+
+.voltage-display-item.t-phase {
+    border-left: 4px solid var(--info-color);
+}
+
+.voltage-display-item.rs-voltage {
+    border-left: 4px solid #ff9ff3;
+}
+
+.voltage-display-item.st-voltage {
+    border-left: 4px solid #54a0ff;
+}
+
+.voltage-display-item.tr-voltage {
+    border-left: 4px solid #5f27cd;
+}
+
+.voltage-display-item .voltage-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    white-space: nowrap;
+}
+
+.voltage-display-item .voltage-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
 }
 
 .legend {
@@ -727,10 +799,6 @@ input:checked + .slider.t-phase {
 
 /* レスポンシブデザイン */
 @media (max-width: 1200px) {
-    .simulation-area {
-        grid-template-columns: 1fr;
-    }
-    
     .control-sections {
         grid-template-columns: 1fr;
     }
@@ -767,14 +835,21 @@ input:checked + .slider.t-phase {
         gap: 0.5rem;
     }
     
-    .voltage-item {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
+    .voltage-overlay {
+        padding: 0.5rem;
     }
     
-    .voltage-value {
-        min-width: auto;
+    .voltage-display-item {
+        padding: 0.25rem 0.5rem;
+        max-width: 120px;
+    }
+    
+    .voltage-display-item .voltage-label {
+        font-size: 0.7rem;
+    }
+    
+    .voltage-display-item .voltage-value {
+        font-size: 0.8rem;
     }
 }
 
