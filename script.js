@@ -4,6 +4,7 @@ class ThreePhaseSimulator {
         this.amplitude = 220; // V
         this.timeScale = 2;
         this.lineVoltageScale = 2; // 線間電圧の表示スケール
+        this.animationSpeed = 1; // アニメーション速度
         this.time = 0;
         this.animationId = null;
         this.isManualMode = false; // 手動モードフラグ
@@ -39,6 +40,11 @@ class ThreePhaseSimulator {
         document.getElementById('lineVoltageScale').addEventListener('input', (e) => {
             this.lineVoltageScale = parseFloat(e.target.value);
             document.getElementById('lineVoltageScaleValue').textContent = `${this.lineVoltageScale.toFixed(1)}x`;
+        });
+        
+        document.getElementById('animationSpeed').addEventListener('input', (e) => {
+            this.animationSpeed = parseFloat(e.target.value);
+            document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(1)}x`;
         });
 
         // マウスイベントの設定
@@ -462,10 +468,16 @@ class ThreePhaseSimulator {
             console.log('手動モード: マウスで時間軸をドラッグできます');
             this.waveformCanvas.style.cursor = 'grab';
             this.lineVoltageCanvas.style.cursor = 'grab';
+            // 手動モード時は速度スライダーを無効化
+            document.getElementById('animationSpeed').disabled = true;
+            document.getElementById('animationSpeed').style.opacity = '0.5';
         } else {
             console.log('自動モード: 時間軸が自動で動きます');
             this.waveformCanvas.style.cursor = 'default';
             this.lineVoltageCanvas.style.cursor = 'default';
+            // 自動モード時は速度スライダーを有効化
+            document.getElementById('animationSpeed').disabled = false;
+            document.getElementById('animationSpeed').style.opacity = '1';
         }
     }
     
@@ -560,7 +572,7 @@ class ThreePhaseSimulator {
     // アニメーションループ
     animate() {
         if (!this.isManualMode) {
-            this.time += 0.016; // 約60FPS
+            this.time += 0.016 * this.animationSpeed; // アニメーション速度を適用
         }
         this.drawWaveform();
         this.drawLineVoltageWaveform();
