@@ -698,6 +698,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ポップアップ広告の制御
 function initAdPopup() {
+    // 閉じるボタンのイベントリスナーを追加
+    const closeButton = document.getElementById('adPopupClose');
+    if (closeButton) {
+        closeButton.addEventListener('click', closeAdPopup);
+    }
+    
     // 30秒後に最初のポップアップを表示
     setTimeout(() => {
         showAdPopup();
@@ -727,6 +733,9 @@ function showAdPopup() {
                 e.stopPropagation();
             }
         });
+        
+        // 一度だけイベントリスナーを追加するためのフラグ
+        popup.dataset.listenerAdded = 'true';
     }
 }
 
