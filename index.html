@@ -10,40 +10,26 @@
 </head>
 <body>
     <div class="container">
-        <header class="hero-header">
+        <header class="compact-header">
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-bolt"></i>
                     <h1>三相電源シミュレーター</h1>
                 </div>
-                <p class="subtitle">R-S-T相の電圧波形と合成電圧をリアルタイムシミュレーション</p>
                 <div class="status-indicator">
                     <span class="status-dot active"></span>
-                    <span class="status-text">システム稼働中</span>
-                </div>
-            </div>
-            <div class="header-decoration">
-                <div class="wave-animation">
-                    <div class="wave"></div>
-                    <div class="wave"></div>
-                    <div class="wave"></div>
+                    <span class="status-text">稼働中</span>
                 </div>
             </div>
         </header>
 
-        <div class="control-panel">
-            <div class="panel-header">
-                <i class="fas fa-sliders-h"></i>
-                <h3>制御パネル</h3>
-            </div>
-            
-            <div class="control-sections">
-                <div class="control-section">
-                    <h4><i class="fas fa-wave-square"></i> 基本パラメータ</h4>
+                <div class="compact-layout">
+            <div class="control-panel">
+                <div class="control-row">
                     <div class="control-group">
                         <label for="frequency">
                             <i class="fas fa-tachometer-alt"></i>
-                            周波数 (Hz)
+                            周波数
                         </label>
                         <div class="slider-container">
                             <input type="range" id="frequency" min="30" max="100" value="50" step="1">
@@ -54,17 +40,14 @@
                     <div class="control-group">
                         <label for="amplitude">
                             <i class="fas fa-bolt"></i>
-                            電圧振幅 (V)
+                            電圧
                         </label>
                         <div class="slider-container">
                             <input type="range" id="amplitude" min="100" max="400" value="220" step="10">
                             <span id="amplitudeValue" class="value-display">220 V</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="control-section">
-                    <h4><i class="fas fa-clock"></i> 表示設定</h4>
+                    
                     <div class="control-group">
                         <label for="timeScale">
                             <i class="fas fa-expand-arrows-alt"></i>
@@ -77,9 +60,22 @@
                     </div>
                     
                     <div class="control-group">
+                        <label for="animationSpeed">
+                            <i class="fas fa-play-circle"></i>
+                            速度
+                        </label>
+                        <div class="slider-container">
+                            <input type="range" id="animationSpeed" min="0.1" max="2" value="0.3" step="0.1">
+                            <span id="animationSpeedValue" class="value-display">0.3x</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-row">
+                    <div class="control-group">
                         <label for="lineVoltageScale">
                             <i class="fas fa-ruler-combined"></i>
-                            線間電圧スケール
+                            線間スケール
                         </label>
                         <div class="slider-container">
                             <input type="range" id="lineVoltageScale" min="1" max="3" value="2" step="0.1">
@@ -87,64 +83,37 @@
                         </div>
                     </div>
                     
-                                <div class="control-group">
-                <label for="animationSpeed">
-                    <i class="fas fa-play-circle"></i>
-                    自動モード速度
-                </label>
-                <div class="slider-container">
-                    <input type="range" id="animationSpeed" min="0.1" max="2" value="0.3" step="0.1">
-                    <span id="animationSpeedValue" class="value-display">0.3x</span>
-                </div>
-            </div>
-                </div>
-
-                <div class="control-section">
-                    <h4><i class="fas fa-mouse-pointer"></i> 操作モード</h4>
                     <div class="control-group">
                         <button id="manualModeBtn" class="mode-btn">
                             <i class="fas fa-hand-paper"></i>
                             <span>手動モード: OFF</span>
                         </button>
-                        <span class="mode-hint">
-                            <i class="fas fa-info-circle"></i>
-                            波形上の縦線をドラッグして時間軸を調整
-                        </span>
                     </div>
-                </div>
-                
-                <div class="control-section">
-                    <h4><i class="fas fa-toggle-on"></i> 相制御</h4>
-                    <div class="phase-switches">
-                        <div class="phase-switch">
-                            <label class="switch">
-                                <input type="checkbox" id="rPhaseEnabled" checked>
-                                <span class="slider r-phase"></span>
-                            </label>
-                            <span class="phase-label">
-                                <i class="fas fa-circle" style="color: #ff6b6b;"></i>
-                                R相
-                            </span>
-                        </div>
-                        <div class="phase-switch">
-                            <label class="switch">
-                                <input type="checkbox" id="sPhaseEnabled" checked>
-                                <span class="slider s-phase"></span>
-                            </label>
-                            <span class="phase-label">
-                                <i class="fas fa-circle" style="color: #4ecdc4;"></i>
-                                S相
-                            </span>
-                        </div>
-                        <div class="phase-switch">
-                            <label class="switch">
-                                <input type="checkbox" id="tPhaseEnabled" checked>
-                                <span class="slider t-phase"></span>
-                            </label>
-                            <span class="phase-label">
-                                <i class="fas fa-circle" style="color: #45b7d1;"></i>
-                                T相
-                            </span>
+                    
+                    <div class="phase-controls">
+                        <span class="phase-label">相制御:</span>
+                        <div class="phase-switches">
+                            <div class="phase-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id="rPhaseEnabled" checked>
+                                    <span class="slider r-phase"></span>
+                                </label>
+                                <span class="phase-label">R</span>
+                            </div>
+                            <div class="phase-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id="sPhaseEnabled" checked>
+                                    <span class="slider s-phase"></span>
+                                </label>
+                                <span class="phase-label">S</span>
+                            </div>
+                            <div class="phase-switch">
+                                <label class="switch">
+                                    <input type="checkbox" id="tPhaseEnabled" checked>
+                                    <span class="slider t-phase"></span>
+                                </label>
+                                <span class="phase-label">T</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -152,101 +121,93 @@
         </div>
 
         <div class="simulation-area">
-            <div class="waveform-container">
-                <div class="container-header">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>三相電圧波形</h3>
-                    <div class="container-actions">
-                        <button class="action-btn" title="全画面表示">
-                            <i class="fas fa-expand"></i>
-                        </button>
+            <div class="waveform-section">
+                <div class="waveform-container">
+                    <div class="container-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>三相電圧波形</h3>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="waveformCanvas" width="600" height="250"></canvas>
+                        <div class="voltage-overlay" id="waveformVoltageOverlay">
+                            <div class="voltage-display-item r-phase">
+                                <span class="voltage-label">R相</span>
+                                <span id="rVoltage" class="voltage-value">0.00 V</span>
+                            </div>
+                            <div class="voltage-display-item s-phase">
+                                <span class="voltage-label">S相</span>
+                                <span id="sVoltage" class="voltage-value">0.00 V</span>
+                            </div>
+                            <div class="voltage-display-item t-phase">
+                                <span class="voltage-label">T相</span>
+                                <span id="tVoltage" class="voltage-value">0.00 V</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color r-phase"></div>
+                            <span>R相</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color s-phase"></div>
+                            <span>S相</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color t-phase"></div>
+                            <span>T相</span>
+                        </div>
                     </div>
                 </div>
-                <div class="canvas-container">
-                    <canvas id="waveformCanvas" width="800" height="300"></canvas>
-                    <div class="voltage-overlay" id="waveformVoltageOverlay">
-                        <div class="voltage-display-item r-phase">
-                            <span class="voltage-label">R相</span>
-                            <span id="rVoltage" class="voltage-value">0.00 V</span>
-                        </div>
-                        <div class="voltage-display-item s-phase">
-                            <span class="voltage-label">S相</span>
-                            <span id="sVoltage" class="voltage-value">0.00 V</span>
-                        </div>
-                        <div class="voltage-display-item t-phase">
-                            <span class="voltage-label">T相</span>
-                            <span id="tVoltage" class="voltage-value">0.00 V</span>
+
+                <div class="line-voltage-container">
+                    <div class="container-header">
+                        <i class="fas fa-chart-area"></i>
+                        <h3>線間電圧波形</h3>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="lineVoltageCanvas" width="600" height="250"></canvas>
+                        <div class="voltage-overlay" id="lineVoltageOverlay">
+                            <div class="voltage-display-item rs-voltage">
+                                <span class="voltage-label">R-S間</span>
+                                <span id="rsVoltage" class="voltage-value">0.00 V</span>
+                            </div>
+                            <div class="voltage-display-item st-voltage">
+                                <span class="voltage-label">S-T間</span>
+                                <span id="stVoltage" class="voltage-value">0.00 V</span>
+                            </div>
+                            <div class="voltage-display-item tr-voltage">
+                                <span class="voltage-label">T-R間</span>
+                                <span id="trVoltage" class="voltage-value">0.00 V</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color r-phase"></div>
-                        <span>R相</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color s-phase"></div>
-                        <span>S相</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color t-phase"></div>
-                        <span>T相</span>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color rs-voltage"></div>
+                            <span>R-S間</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color st-voltage"></div>
+                            <span>S-T間</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color tr-voltage"></div>
+                            <span>T-R間</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="line-voltage-container">
-                <div class="container-header">
-                    <i class="fas fa-chart-area"></i>
-                    <h3>線間電圧波形</h3>
-                    <div class="container-actions">
-                        <button class="action-btn" title="全画面表示">
-                            <i class="fas fa-expand"></i>
-                        </button>
+            <div class="phasor-section">
+                <div class="phasor-diagram">
+                    <div class="container-header">
+                        <i class="fas fa-compass"></i>
+                        <h3>ベクトル図</h3>
                     </div>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="lineVoltageCanvas" width="800" height="300"></canvas>
-                    <div class="voltage-overlay" id="lineVoltageOverlay">
-                        <div class="voltage-display-item rs-voltage">
-                            <span class="voltage-label">R-S間</span>
-                            <span id="rsVoltage" class="voltage-value">0.00 V</span>
-                        </div>
-                        <div class="voltage-display-item st-voltage">
-                            <span class="voltage-label">S-T間</span>
-                            <span id="stVoltage" class="voltage-value">0.00 V</span>
-                        </div>
-                        <div class="voltage-display-item tr-voltage">
-                            <span class="voltage-label">T-R間</span>
-                            <span id="trVoltage" class="voltage-value">0.00 V</span>
-                        </div>
+                    <div class="canvas-container">
+                        <canvas id="phasorCanvas" width="300" height="300"></canvas>
                     </div>
-                </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color rs-voltage"></div>
-                        <span>R-S間</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color st-voltage"></div>
-                        <span>S-T間</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color tr-voltage"></div>
-                        <span>T-R間</span>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <div class="phasor-diagram">
-                <div class="container-header">
-                    <i class="fas fa-compass"></i>
-                    <h3>ベクトル図</h3>
-                </div>
-                <div class="canvas-container">
-                    <canvas id="phasorCanvas" width="400" height="400"></canvas>
                 </div>
             </div>
         </div>
