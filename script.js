@@ -72,11 +72,12 @@ class ThreePhaseSimulator {
         document.getElementById('manualModeBtn').addEventListener('click', () => {
             this.toggleManualMode();
             const btn = document.getElementById('manualModeBtn');
+            const span = btn.querySelector('span');
             if (this.isManualMode) {
-                btn.textContent = '手動モード: ON';
+                span.textContent = '手動モード: ON';
                 btn.classList.add('active');
             } else {
-                btn.textContent = '手動モード: OFF';
+                span.textContent = '手動モード: OFF';
                 btn.classList.remove('active');
             }
         });
