@@ -4,7 +4,7 @@ class ThreePhaseSimulator {
         this.amplitude = 220; // V
         this.timeScale = 2;
         this.lineVoltageScale = 2; // 線間電圧の表示スケール
-        this.animationSpeed = 0.2; // アニメーション速度（より遅いデフォルト）
+        this.animationSpeed = 0.1; // アニメーション速度（非常に遅いデフォルト）
         this.time = 0;
         this.animationId = null;
         this.isManualMode = false; // 手動モードフラグ
@@ -657,7 +657,7 @@ class ThreePhaseSimulator {
     // アニメーションループ
     animate() {
         if (!this.isManualMode) {
-            this.time += 0.016 * this.animationSpeed; // アニメーション速度を適用
+            this.time += 0.008 * this.animationSpeed; // より遅い基準速度に調整
         }
         this.drawWaveform();
         this.drawLineVoltageWaveform();
