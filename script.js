@@ -691,4 +691,49 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', () => {
         simulator.stopAnimation();
     });
+    
+    // ポップアップ広告の初期化
+    initAdPopup();
+});
+
+// ポップアップ広告の制御
+function initAdPopup() {
+    // 30秒後に最初のポップアップを表示
+    setTimeout(() => {
+        showAdPopup();
+    }, 30000);
+    
+    // その後、5分ごとにポップアップを表示
+    setInterval(() => {
+        showAdPopup();
+    }, 300000); // 5分 = 300000ms
+}
+
+function showAdPopup() {
+    const popup = document.getElementById('adPopup');
+    if (popup) {
+        popup.style.display = 'block';
+        
+        // ポップアップ外をクリックしても閉じないようにする
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                // ポップアップ外クリックは無視
+                e.stopPropagation();
+            }
+        });
+    }
+}
+
+function closeAdPopup() {
+    const popup = document.getElementById('adPopup');
+    if (popup) {
+        popup.style.display = 'none';
+    }
+}
+
+// ESCキーでポップアップを閉じる
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeAdPopup();
+    }
 });
