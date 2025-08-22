@@ -4,7 +4,7 @@ class ThreePhaseSimulator {
         this.amplitude = 220; // V
         this.timeScale = 2;
         this.lineVoltageScale = 2; // 線間電圧の表示スケール
-        this.animationSpeed = 0.3; // アニメーション速度（遅めのデフォルト）
+        this.animationSpeed = 0.2; // アニメーション速度（より遅いデフォルト）
         this.time = 0;
         this.animationId = null;
         this.isManualMode = false; // 手動モードフラグ
@@ -53,7 +53,7 @@ class ThreePhaseSimulator {
         
         document.getElementById('animationSpeed').addEventListener('input', (e) => {
             this.animationSpeed = parseFloat(e.target.value);
-            document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(1)}x`;
+            document.getElementById('animationSpeedValue').textContent = `${this.animationSpeed.toFixed(2)}x`;
         });
 
         // 相の有効・無効イベントリスナー
