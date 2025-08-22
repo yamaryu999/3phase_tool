@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三相電源シミュレーター</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>三相電源シミュレーター</h1>
+            <p>R-S-T相の電圧波形と合成電圧をシミュレーション</p>
+        </header>
+
+        <div class="control-panel">
+            <div class="control-group">
+                <label for="frequency">周波数 (Hz):</label>
+                <input type="range" id="frequency" min="30" max="100" value="50" step="1">
+                <span id="frequencyValue">50 Hz</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="amplitude">電圧振幅 (V):</label>
+                <input type="range" id="amplitude" min="100" max="400" value="220" step="10">
+                <span id="amplitudeValue">220 V</span>
+            </div>
+
+            <div class="control-group">
+                <label for="timeScale">時間スケール:</label>
+                <input type="range" id="timeScale" min="1" max="5" value="2" step="0.5">
+                <span id="timeScaleValue">2x</span>
+            </div>
+            
+            <div class="control-group">
+                <button id="manualModeBtn" class="mode-btn">手動モード: OFF</button>
+                <span class="mode-hint">波形上の縦線をドラッグして時間軸を調整</span>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <div class="waveform-container">
+                <h3>三相電圧波形</h3>
+                <canvas id="waveformCanvas" width="800" height="300"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color r-phase"></div>
+                        <span>R相</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color s-phase"></div>
+                        <span>S相</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color t-phase"></div>
+                        <span>T相</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="line-voltage-container">
+                <h3>線間電圧波形</h3>
+                <canvas id="lineVoltageCanvas" width="800" height="300"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color rs-voltage"></div>
+                        <span>R-S間</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color st-voltage"></div>
+                        <span>S-T間</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color tr-voltage"></div>
+                        <span>T-R間</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="voltage-display">
+                <h3>瞬時電圧値</h3>
+                <div class="voltage-grid">
+                    <div class="voltage-item">
+                        <span class="voltage-label">R相:</span>
+                        <span id="rVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                    <div class="voltage-item">
+                        <span class="voltage-label">S相:</span>
+                        <span id="sVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                    <div class="voltage-item">
+                        <span class="voltage-label">T相:</span>
+                        <span id="tVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                    <div class="voltage-item">
+                        <span class="voltage-label">R-S間:</span>
+                        <span id="rsVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                    <div class="voltage-item">
+                        <span class="voltage-label">S-T間:</span>
+                        <span id="stVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                    <div class="voltage-item">
+                        <span class="voltage-label">T-R間:</span>
+                        <span id="trVoltage" class="voltage-value">0.00 V</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="phasor-diagram">
+                <h3>ベクトル図</h3>
+                <canvas id="phasorCanvas" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>三相電源の特徴</h3>
+            <ul>
+                <li>各相は120度（2π/3ラジアン）ずつ位相がずれています</li>
+                <li>線間電圧（R-S、S-T、T-R）は相電圧の√3倍になります</li>
+                <li>三相平衡負荷では、中性線電流は0になります</li>
+                <li>瞬時電力は一定値となり、脈動がありません</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

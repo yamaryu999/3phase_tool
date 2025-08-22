@@ -1,0 +1,484 @@
+class ThreePhaseSimulator {
+    constructor() {
+        this.frequency = 50; // Hz
+        this.amplitude = 220; // V
+        this.timeScale = 2;
+        this.time = 0;
+        this.animationId = null;
+        this.isManualMode = false; // 手動モードフラグ
+        this.isDragging = false; // ドラッグ中フラグ
+        
+        this.waveformCanvas = document.getElementById('waveformCanvas');
+        this.lineVoltageCanvas = document.getElementById('lineVoltageCanvas');
+        this.phasorCanvas = document.getElementById('phasorCanvas');
+        this.waveformCtx = this.waveformCanvas.getContext('2d');
+        this.lineVoltageCtx = this.lineVoltageCanvas.getContext('2d');
+        this.phasorCtx = this.phasorCanvas.getContext('2d');
+        
+        this.setupEventListeners();
+        this.startAnimation();
+    }
+    
+    setupEventListeners() {
+        document.getElementById('frequency').addEventListener('input', (e) => {
+            this.frequency = parseInt(e.target.value);
+            document.getElementById('frequencyValue').textContent = `${this.frequency} Hz`;
+        });
+        
+        document.getElementById('amplitude').addEventListener('input', (e) => {
+            this.amplitude = parseInt(e.target.value);
+            document.getElementById('amplitudeValue').textContent = `${this.amplitude} V`;
+        });
+        
+        document.getElementById('timeScale').addEventListener('input', (e) => {
+            this.timeScale = parseFloat(e.target.value);
+            document.getElementById('timeScaleValue').textContent = `${this.timeScale}x`;
+        });
+
+        // マウスイベントの設定
+        this.setupMouseEvents();
+        
+        // 手動モードボタンのイベントリスナー
+        document.getElementById('manualModeBtn').addEventListener('click', () => {
+            this.toggleManualMode();
+            const btn = document.getElementById('manualModeBtn');
+            if (this.isManualMode) {
+                btn.textContent = '手動モード: ON';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '手動モード: OFF';
+                btn.classList.remove('active');
+            }
+        });
+    }
+    
+    // 三相電圧の計算
+    calculateVoltages(time) {
+        const omega = 2 * Math.PI * this.frequency;
+        const phaseShift = 2 * Math.PI / 3; // 120度
+        
+        const rPhase = this.amplitude * Math.sin(omega * time);
+        const sPhase = this.amplitude * Math.sin(omega * time - phaseShift);
+        const tPhase = this.amplitude * Math.sin(omega * time - 2 * phaseShift);
+        
+        // 線間電圧の計算
+        const rsVoltage = rPhase - sPhase;
+        const stVoltage = sPhase - tPhase;
+        const trVoltage = tPhase - rPhase;
+        
+        return {
+            rPhase, sPhase, tPhase,
+            rsVoltage, stVoltage, trVoltage
+        };
+    }
+    
+    // 波形の描画
+    drawWaveform() {
+        const ctx = this.waveformCtx;
+        const width = this.waveformCanvas.width;
+        const height = this.waveformCanvas.height;
+        
+        // キャンバスをクリア
+        ctx.clearRect(0, 0, width, height);
+        
+        // グリッドの描画
+        this.drawGrid(ctx, width, height);
+        
+        // 時間軸の描画
+        const timeRange = 2 / this.frequency; // 2周期分
+        const timeStep = timeRange / width;
+        
+        // 各相の波形を描画
+        const colors = {
+            r: '#ff6b6b',
+            s: '#4ecdc4',
+            t: '#45b7d1'
+        };
+        
+        ctx.lineWidth = 2;
+        
+        // R相
+        ctx.strokeStyle = colors.r;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
+            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // S相
+        ctx.strokeStyle = colors.s;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
+            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // T相
+        ctx.strokeStyle = colors.t;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const voltage = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
+            const y = height / 2 - (voltage / this.amplitude) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 現在時刻のマーカー
+        const currentX = (this.time % timeRange) / timeRange * width;
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(currentX, 0);
+        ctx.lineTo(currentX, height);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+    
+    // ベクトル図の描画
+    drawPhasorDiagram() {
+        const ctx = this.phasorCtx;
+        const width = this.phasorCanvas.width;
+        const height = this.phasorCanvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.min(width, height) / 2 - 40;
+        
+        // キャンバスをクリア
+        ctx.clearRect(0, 0, width, height);
+        
+        // 中心点
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // 座標軸
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centerX - radius - 20, centerY);
+        ctx.lineTo(centerX + radius + 20, centerY);
+        ctx.moveTo(centerX, centerY - radius - 20);
+        ctx.lineTo(centerX, centerY + radius + 20);
+        ctx.stroke();
+        
+        // 円の描画
+        ctx.strokeStyle = '#eee';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // 各相のベクトルを描画
+        const colors = {
+            r: '#ff6b6b',
+            s: '#4ecdc4',
+            t: '#45b7d1'
+        };
+        
+        const omega = 2 * Math.PI * this.frequency;
+        const phaseShift = 2 * Math.PI / 3;
+        
+        // R相ベクトル
+        const rAngle = omega * this.time;
+        const rX = centerX + radius * Math.cos(rAngle);
+        const rY = centerY - radius * Math.sin(rAngle);
+        
+        ctx.strokeStyle = colors.r;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(rX, rY);
+        ctx.stroke();
+        
+        // S相ベクトル
+        const sAngle = omega * this.time - phaseShift;
+        const sX = centerX + radius * Math.cos(sAngle);
+        const sY = centerY - radius * Math.sin(sAngle);
+        
+        ctx.strokeStyle = colors.s;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(sX, sY);
+        ctx.stroke();
+        
+        // T相ベクトル
+        const tAngle = omega * this.time - 2 * phaseShift;
+        const tX = centerX + radius * Math.cos(tAngle);
+        const tY = centerY - radius * Math.sin(tAngle);
+        
+        ctx.strokeStyle = colors.t;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(tX, tY);
+        ctx.stroke();
+        
+        // ベクトルの先端に円を描画
+        ctx.fillStyle = colors.r;
+        ctx.beginPath();
+        ctx.arc(rX, rY, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = colors.s;
+        ctx.beginPath();
+        ctx.arc(sX, sY, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        ctx.fillStyle = colors.t;
+        ctx.beginPath();
+        ctx.arc(tX, tY, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // 線間電圧ベクトルの描画（破線）
+        ctx.strokeStyle = '#666';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 4]);
+        
+        // R-S間
+        ctx.beginPath();
+        ctx.moveTo(rX, rY);
+        ctx.lineTo(sX, sY);
+        ctx.stroke();
+        
+        // S-T間
+        ctx.beginPath();
+        ctx.moveTo(sX, sY);
+        ctx.lineTo(tX, tY);
+        ctx.stroke();
+        
+        // T-R間
+        ctx.beginPath();
+        ctx.moveTo(tX, tY);
+        ctx.lineTo(rX, rY);
+        ctx.stroke();
+        
+        ctx.setLineDash([]);
+    }
+    
+    // グリッドの描画
+    drawGrid(ctx, width, height) {
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 1;
+        
+        // 縦線
+        for (let x = 0; x <= width; x += width / 10) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+        
+        // 横線
+        for (let y = 0; y <= height; y += height / 6) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+        
+        // 中心線
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, height / 2);
+        ctx.lineTo(width, height / 2);
+        ctx.stroke();
+    }
+    
+    // 電圧値の更新
+    updateVoltageDisplay() {
+        const voltages = this.calculateVoltages(this.time);
+        
+        document.getElementById('rVoltage').textContent = `${voltages.rPhase.toFixed(2)} V`;
+        document.getElementById('sVoltage').textContent = `${voltages.sPhase.toFixed(2)} V`;
+        document.getElementById('tVoltage').textContent = `${voltages.tPhase.toFixed(2)} V`;
+        document.getElementById('rsVoltage').textContent = `${voltages.rsVoltage.toFixed(2)} V`;
+        document.getElementById('stVoltage').textContent = `${voltages.stVoltage.toFixed(2)} V`;
+        document.getElementById('trVoltage').textContent = `${voltages.trVoltage.toFixed(2)} V`;
+    }
+    
+    // マウスイベントの設定
+    setupMouseEvents() {
+        const canvas = this.waveformCanvas;
+        const lineVoltageCanvas = this.lineVoltageCanvas;
+        
+        // マウスダウン（三相電圧波形）
+        canvas.addEventListener('mousedown', (e) => {
+            if (!this.isManualMode) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = canvas.width;
+            
+            // 時間軸マーカー付近をクリックしたかチェック
+            const timeRange = 2 / this.frequency;
+            const currentX = (this.time % timeRange) / timeRange * width;
+            
+            if (Math.abs(x - currentX) < 20) { // マーカー付近20px以内
+                this.isDragging = true;
+                canvas.style.cursor = 'grabbing';
+                lineVoltageCanvas.style.cursor = 'grabbing';
+            }
+        });
+
+        // マウスダウン（線間電圧波形）
+        lineVoltageCanvas.addEventListener('mousedown', (e) => {
+            if (!this.isManualMode) return;
+            
+            const rect = lineVoltageCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = lineVoltageCanvas.width;
+            
+            // 時間軸マーカー付近をクリックしたかチェック
+            const timeRange = 2 / this.frequency;
+            const currentX = (this.time % timeRange) / timeRange * width;
+            
+            if (Math.abs(x - currentX) < 20) { // マーカー付近20px以内
+                this.isDragging = true;
+                canvas.style.cursor = 'grabbing';
+                lineVoltageCanvas.style.cursor = 'grabbing';
+            }
+        });
+        
+        // マウス移動（三相電圧波形）
+        canvas.addEventListener('mousemove', (e) => {
+            if (this.isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const width = canvas.width;
+                
+                // 時間を計算
+                const timeRange = 2 / this.frequency;
+                const normalizedX = Math.max(0, Math.min(1, x / width));
+                this.time = normalizedX * timeRange;
+                
+                canvas.style.cursor = 'grabbing';
+                lineVoltageCanvas.style.cursor = 'grabbing';
+            } else if (this.isManualMode) {
+                // マーカー付近にマウスがあるかチェック
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const width = canvas.width;
+                const timeRange = 2 / this.frequency;
+                const currentX = (this.time % timeRange) / timeRange * width;
+                
+                if (Math.abs(x - currentX) < 20) {
+                    canvas.style.cursor = 'grab';
+                } else {
+                    canvas.style.cursor = 'default';
+                }
+            }
+        });
+
+        // マウス移動（線間電圧波形）
+        lineVoltageCanvas.addEventListener('mousemove', (e) => {
+            if (this.isDragging) {
+                const rect = lineVoltageCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const width = lineVoltageCanvas.width;
+                
+                // 時間を計算
+                const timeRange = 2 / this.frequency;
+                const normalizedX = Math.max(0, Math.min(1, x / width));
+                this.time = normalizedX * timeRange;
+                
+                canvas.style.cursor = 'grabbing';
+                lineVoltageCanvas.style.cursor = 'grabbing';
+            } else if (this.isManualMode) {
+                // マーカー付近にマウスがあるかチェック
+                const rect = lineVoltageCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const width = lineVoltageCanvas.width;
+                const timeRange = 2 / this.frequency;
+                const currentX = (this.time % timeRange) / timeRange * width;
+                
+                if (Math.abs(x - currentX) < 20) {
+                    lineVoltageCanvas.style.cursor = 'grab';
+                } else {
+                    lineVoltageCanvas.style.cursor = 'default';
+                }
+            }
+        });
+        
+        // マウスアップ
+        canvas.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            this.waveformCanvas.style.cursor = 'default';
+        });
+        
+        // マウスがキャンバスから離れた場合
+        canvas.addEventListener('mouseleave', () => {
+            this.isDragging = false;
+            this.waveformCanvas.style.cursor = 'default';
+        });
+    }
+    
+    // 手動モードの切り替え
+    toggleManualMode() {
+        this.isManualMode = !this.isManualMode;
+        if (this.isManualMode) {
+            console.log('手動モード: マウスで時間軸をドラッグできます');
+            this.waveformCanvas.style.cursor = 'grab';
+        } else {
+            console.log('自動モード: 時間軸が自動で動きます');
+            this.waveformCanvas.style.cursor = 'default';
+        }
+    }
+    
+    // アニメーションループ
+    animate() {
+        if (!this.isManualMode) {
+            this.time += 0.016; // 約60FPS
+        }
+        this.drawWaveform();
+        this.drawPhasorDiagram();
+        this.updateVoltageDisplay();
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+    
+    // アニメーション開始
+    startAnimation() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+        this.animate();
+    }
+    
+    // アニメーション停止
+    stopAnimation() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+    }
+}
+
+// シミュレーターの初期化
+document.addEventListener('DOMContentLoaded', () => {
+    const simulator = new ThreePhaseSimulator();
+    
+    // ページを離れる際にアニメーションを停止
+    window.addEventListener('beforeunload', () => {
+        simulator.stopAnimation();
+    });
+});
