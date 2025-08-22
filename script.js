@@ -24,6 +24,10 @@ class ThreePhaseSimulator {
         
         this.setupEventListeners();
         this.startAnimation();
+        
+        // 初期状態でオーバーレイのpointer-eventsを有効化（自動モード）
+        document.getElementById('waveformVoltageOverlay').style.pointerEvents = 'auto';
+        document.getElementById('lineVoltageOverlay').style.pointerEvents = 'auto';
     }
     
     setupEventListeners() {
@@ -544,6 +548,9 @@ class ThreePhaseSimulator {
             // 手動モード時は速度スライダーを無効化
             document.getElementById('animationSpeed').disabled = true;
             document.getElementById('animationSpeed').style.opacity = '0.5';
+            // 手動モード時はオーバーレイのpointer-eventsを無効化
+            document.getElementById('waveformVoltageOverlay').style.pointerEvents = 'none';
+            document.getElementById('lineVoltageOverlay').style.pointerEvents = 'none';
         } else {
             console.log('自動モード: 時間軸が自動で動きます');
             this.waveformCanvas.style.cursor = 'default';
@@ -551,6 +558,9 @@ class ThreePhaseSimulator {
             // 自動モード時は速度スライダーを有効化
             document.getElementById('animationSpeed').disabled = false;
             document.getElementById('animationSpeed').style.opacity = '1';
+            // 自動モード時はオーバーレイのpointer-eventsを有効化
+            document.getElementById('waveformVoltageOverlay').style.pointerEvents = 'auto';
+            document.getElementById('lineVoltageOverlay').style.pointerEvents = 'auto';
         }
     }
     
