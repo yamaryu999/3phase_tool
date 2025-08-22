@@ -424,12 +424,28 @@ class ThreePhaseSimulator {
         canvas.addEventListener('mouseup', () => {
             this.isDragging = false;
             this.waveformCanvas.style.cursor = 'default';
+            this.lineVoltageCanvas.style.cursor = 'default';
         });
         
         // マウスがキャンバスから離れた場合
         canvas.addEventListener('mouseleave', () => {
             this.isDragging = false;
             this.waveformCanvas.style.cursor = 'default';
+            this.lineVoltageCanvas.style.cursor = 'default';
+        });
+
+        // 線間電圧波形のマウスアップ
+        lineVoltageCanvas.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            this.waveformCanvas.style.cursor = 'default';
+            this.lineVoltageCanvas.style.cursor = 'default';
+        });
+        
+        // 線間電圧波形のマウスリーブ
+        lineVoltageCanvas.addEventListener('mouseleave', () => {
+            this.isDragging = false;
+            this.waveformCanvas.style.cursor = 'default';
+            this.lineVoltageCanvas.style.cursor = 'default';
         });
     }
     
@@ -439,10 +455,100 @@ class ThreePhaseSimulator {
         if (this.isManualMode) {
             console.log('手動モード: マウスで時間軸をドラッグできます');
             this.waveformCanvas.style.cursor = 'grab';
+            this.lineVoltageCanvas.style.cursor = 'grab';
         } else {
             console.log('自動モード: 時間軸が自動で動きます');
             this.waveformCanvas.style.cursor = 'default';
+            this.lineVoltageCanvas.style.cursor = 'default';
         }
+    }
+    
+    // 線間電圧波形の描画
+    drawLineVoltageWaveform() {
+        const ctx = this.lineVoltageCtx;
+        const width = this.lineVoltageCanvas.width;
+        const height = this.lineVoltageCanvas.height;
+        
+        // キャンバスをクリア
+        ctx.clearRect(0, 0, width, height);
+        
+        // グリッドの描画
+        this.drawGrid(ctx, width, height);
+        
+        // 時間軸の描画
+        const timeRange = 2 / this.frequency; // 2周期分
+        const timeStep = timeRange / width;
+        
+        // 線間電圧の波形を描画
+        const colors = {
+            rs: '#ff9ff3',
+            st: '#54a0ff',
+            tr: '#5f27cd'
+        };
+        
+        ctx.lineWidth = 2;
+        
+        // R-S間電圧
+        ctx.strokeStyle = colors.rs;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
+            const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
+            const rsVoltage = rPhase - sPhase;
+            const y = height / 2 - (rsVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // S-T間電圧
+        ctx.strokeStyle = colors.st;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
+            const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
+            const stVoltage = sPhase - tPhase;
+            const y = height / 2 - (stVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // T-R間電圧
+        ctx.strokeStyle = colors.tr;
+        ctx.beginPath();
+        for (let x = 0; x < width; x++) {
+            const t = x * timeStep * this.timeScale;
+            const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
+            const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
+            const trVoltage = tPhase - rPhase;
+            const y = height / 2 - (trVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            if (x === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+        
+        // 現在時刻のマーカー
+        const currentX = (this.time % timeRange) / timeRange * width;
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(currentX, 0);
+        ctx.lineTo(currentX, height);
+        ctx.stroke();
+        ctx.setLineDash([]);
     }
     
     // アニメーションループ
@@ -451,6 +557,7 @@ class ThreePhaseSimulator {
             this.time += 0.016; // 約60FPS
         }
         this.drawWaveform();
+        this.drawLineVoltageWaveform();
         this.drawPhasorDiagram();
         this.updateVoltageDisplay();
         this.animationId = requestAnimationFrame(() => this.animate());
