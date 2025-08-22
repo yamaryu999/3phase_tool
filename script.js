@@ -3,6 +3,7 @@ class ThreePhaseSimulator {
         this.frequency = 50; // Hz
         this.amplitude = 220; // V
         this.timeScale = 2;
+        this.lineVoltageScale = 2; // 線間電圧の表示スケール
         this.time = 0;
         this.animationId = null;
         this.isManualMode = false; // 手動モードフラグ
@@ -33,6 +34,11 @@ class ThreePhaseSimulator {
         document.getElementById('timeScale').addEventListener('input', (e) => {
             this.timeScale = parseFloat(e.target.value);
             document.getElementById('timeScaleValue').textContent = `${this.timeScale}x`;
+        });
+        
+        document.getElementById('lineVoltageScale').addEventListener('input', (e) => {
+            this.lineVoltageScale = parseFloat(e.target.value);
+            document.getElementById('lineVoltageScaleValue').textContent = `${this.lineVoltageScale.toFixed(1)}x`;
         });
 
         // マウスイベントの設定
@@ -496,7 +502,7 @@ class ThreePhaseSimulator {
             const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
             const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
             const rsVoltage = rPhase - sPhase;
-            const y = height / 2 - (rsVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            const y = height / 2 - (rsVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
             if (x === 0) {
                 ctx.moveTo(x, y);
             } else {
@@ -513,7 +519,7 @@ class ThreePhaseSimulator {
             const sPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 2 * Math.PI / 3);
             const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
             const stVoltage = sPhase - tPhase;
-            const y = height / 2 - (stVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            const y = height / 2 - (stVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
             if (x === 0) {
                 ctx.moveTo(x, y);
             } else {
@@ -530,7 +536,7 @@ class ThreePhaseSimulator {
             const tPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t - 4 * Math.PI / 3);
             const rPhase = this.amplitude * Math.sin(2 * Math.PI * this.frequency * t);
             const trVoltage = tPhase - rPhase;
-            const y = height / 2 - (trVoltage / (this.amplitude * Math.sqrt(3))) * (height / 2 - 20);
+            const y = height / 2 - (trVoltage / (this.amplitude * this.lineVoltageScale)) * (height / 2 - 20);
             if (x === 0) {
                 ctx.moveTo(x, y);
             } else {
